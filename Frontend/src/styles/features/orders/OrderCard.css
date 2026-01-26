@@ -1,0 +1,81 @@
+.order-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: white;
+  transition: box-shadow 0.2s;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.order-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.order-card-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.order-card-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #4b5563;
+}
+
+.order-card-id {
+  font-weight: 600;
+  color: #111827;
+}
+
+.order-card-customer {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.order-card-view-btn {
+  padding: 0.5rem;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.order-card-view-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.order-card-amount {
+  margin-bottom: 0.75rem;
+}
+
+.order-card-amount-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.order-card-amount-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.order-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.order-card-meta {
+  font-size: 0.75rem;
+  color: #6b7280;
+}

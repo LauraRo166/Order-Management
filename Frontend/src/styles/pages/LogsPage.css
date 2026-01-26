@@ -1,0 +1,23 @@
+.logs-page-container {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.logs-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.logs-page-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.logs-page-subtitle {
+  color: #4b5563;
+}
+
+.logs-page-search {
+  margin-bottom: 1.5rem;
+}
