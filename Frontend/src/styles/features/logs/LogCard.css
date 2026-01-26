@@ -1,0 +1,49 @@
+.log-card {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.log-card:last-child {
+  border-bottom: none;
+}
+
+.log-card:hover {
+  background-color: #f9fafb;
+}
+
+.log-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.log-card-order-id {
+  font-weight: 600;
+  margin: 0;
+}
+
+.log-card-timestamp {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin: 0.25rem 0 0 0;
+}
+
+.log-card-transition {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.log-card-arrow {
+  color: #9ca3af;
+}
+
+.log-card-action {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}

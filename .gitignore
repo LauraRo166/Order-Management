@@ -10,10 +10,6 @@
 Thumbs.db
 desktop.ini
 
-# Logs generales
-*.log
-logs/
-
 # Archivos de entorno (IMPORTANTE: No subir credenciales)
 .env
 .env.local
