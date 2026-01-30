@@ -30,13 +30,6 @@ async def transition_order(
     transition_data: TransitionRequest,
     db: AsyncSession = Depends(get_db)
 ):
-    """
-    Realiza una transición de estado en una orden.
-
-    Esta operación es atómica: tanto el cambio de estado como el log
-    se guardan en la misma transacción para garantizar consistencia.
-    Si la acción es 'cancel', se crea un ticket con el motivo de cancelación.
-    """
     order_repo = OrderRepository(db)
     log_repo = TransitionLogRepository(db)
     ticket_repo = TicketRepository(db)
@@ -49,7 +42,6 @@ async def transition_order(
             transition_data.cancellation_reason
         )
 
-        # Obtener la orden actualizada con todas las relaciones
         updated_order = await order_repo.get_by_id(order_id)
         return updated_order
     except ValueError as e:

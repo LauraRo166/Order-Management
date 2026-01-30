@@ -3,7 +3,6 @@ from app.models.enums import OrderState, OrderAction
 
 
 class OrderStateMachine:
-    REVIEW_THRESHOLD = 1000.0
 
     TRANSITIONS: Dict[OrderState, Dict[OrderAction, OrderState]] = {
         OrderState.PENDING: {
@@ -33,16 +32,12 @@ class OrderStateMachine:
         action: str,
         order_amount: float
     ) -> tuple[bool, Optional[str], Optional[str]]:
+
         try:
             current = OrderState(current_state)
             action_enum = OrderAction(action)
         except ValueError:
             return False, None, "Invalid state or action"
-
-        if (current == OrderState.PENDING and
-            action_enum == OrderAction.START_PREPARATION and
-            order_amount > cls.REVIEW_THRESHOLD):
-            return False, None, f"Orders over ${cls.REVIEW_THRESHOLD} require review"
 
         if current not in cls.TRANSITIONS:
             return False, None, f"State {current_state} not recognized"

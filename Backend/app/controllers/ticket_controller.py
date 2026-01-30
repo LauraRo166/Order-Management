@@ -13,7 +13,6 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 async def get_all_tickets(
     db: AsyncSession = Depends(get_db)
 ):
-    """Obtiene todos los tickets de cancelación creados."""
     ticket_repo = TicketRepository(db)
     tickets = await ticket_repo.get_all()
     return tickets
@@ -24,7 +23,6 @@ async def get_ticket(
     ticket_id: UUID,
     db: AsyncSession = Depends(get_db)
 ):
-    """Obtiene un ticket específico por su ID."""
     ticket_repo = TicketRepository(db)
     ticket = await ticket_repo.get_by_id(ticket_id)
 
@@ -39,7 +37,6 @@ async def get_ticket_by_order(
     order_id: UUID,
     db: AsyncSession = Depends(get_db)
 ):
-    """Obtiene el ticket asociado a una orden específica."""
     ticket_repo = TicketRepository(db)
     ticket = await ticket_repo.get_by_order_id(order_id)
 

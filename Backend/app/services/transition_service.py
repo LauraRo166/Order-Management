@@ -21,7 +21,6 @@ class TransitionService:
         self.log_repo = log_repo
         self.ticket_repo = ticket_repo
 
-        # Inicializar el motor de reglas
         self.rule_repository = rule_repository or RuleRepository()
         self.rule_engine = RuleEngine(self.rule_repository)
 
@@ -43,21 +42,17 @@ class TransitionService:
         if not order:
             raise ValueError("Order not found")
 
-        # PASO 1: Evaluar reglas de negocio ANTES de la transición
         rule_actions = self.rule_engine.evaluate(order, event="order_transition", action=action)
 
-        # PASO 2: Ejecutar acciones del motor de reglas
         rule_results = self.rule_engine.execute_actions(
             rule_actions,
             order,
             context={"action": action, "cancellation_reason": cancellation_reason}
         )
 
-        # PASO 3: Verificar si alguna regla bloqueó la transición
         if rule_results.get("blocked", False):
             raise ValueError(rule_results.get("block_reason", "Transition blocked by business rules"))
 
-        # PASO 4: Validar transición en la máquina de estados (sin reglas quemadas)
         is_valid, new_state, error_msg = OrderStateMachine.is_valid_transition(
             current_state=order.current_state,
             action=action,
@@ -67,17 +62,14 @@ class TransitionService:
         if not is_valid:
             raise ValueError(error_msg)
 
-        # PASO 5: Validación específica de cancelación
         if action == "cancel":
             if not cancellation_reason or not cancellation_reason.strip():
                 raise ValueError("Cancellation reason is required when cancelling an order")
 
         previous_state = order.current_state
 
-        # PASO 6: Actualizar el estado de la orden
         order.current_state = new_state
 
-        # PASO 7: Crear log de transición
         log_data = {
             "order_id": order.id,
             "previous_state": previous_state,
@@ -86,7 +78,6 @@ class TransitionService:
         }
         await self.log_repo.create(log_data)
 
-        # PASO 8: Crear ticket si es cancelación
         if action == "cancel" and self.ticket_repo:
             ticket_data = {
                 "order_id": order.id,
@@ -94,11 +85,9 @@ class TransitionService:
             }
             await self.ticket_repo.create(ticket_data)
 
-        # PASO 9: Commit de la transacción
         await self.log_repo.db.commit()
         await self.log_repo.db.refresh(order)
 
-        # PASO 10: Retornar resultado incluyendo metadata del motor de reglas
         return {
             "order_id": order.id,
             "previous_state": previous_state,

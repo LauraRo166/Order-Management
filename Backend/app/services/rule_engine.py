@@ -23,29 +23,26 @@ class RuleActionType(str, Enum):
 
 @dataclass
 class RuleCondition:
-    """Representa una condición que debe evaluarse"""
     condition_type: RuleConditionType
-    field: str  # Campo del objeto a evaluar (ej: "amount", "product_type")
-    value: Any  # Valor a comparar
-    operator: Optional[str] = None  # Para condiciones complejas
-    sub_conditions: Optional[List['RuleCondition']] = None  # Para AND/OR
+    field: str
+    value: Any
+    operator: Optional[str] = None
+    sub_conditions: Optional[List['RuleCondition']] = None
 
 
 @dataclass
 class RuleAction:
-    """Representa una acción a ejecutar cuando se cumple una regla"""
     action_type: RuleActionType
     parameters: Dict[str, Any]
-    priority: int = 0  # Prioridad de ejecución (menor = mayor prioridad)
+    priority: int = 0
 
 
 @dataclass
 class Rule:
-    """Representa una regla de negocio"""
     id: str
     name: str
     description: str
-    event: str  # Evento que dispara la regla (ej: "order_transition", "order_creation")
+    event: str
     conditions: List[RuleCondition]
     actions: List[RuleAction]
     enabled: bool = True
@@ -53,23 +50,12 @@ class Rule:
 
 
 class RuleEngine:
-    """Motor de evaluación de reglas de negocio"""
 
     def __init__(self, rule_repository):
         self.rule_repository = rule_repository
 
     def evaluate(self, order: Any, event: str, action: Optional[str] = None) -> List[RuleAction]:
-        """
-        Evalúa todas las reglas aplicables para un evento y retorna las acciones a ejecutar
 
-        Args:
-            order: Objeto order a evaluar
-            event: Evento que dispara la evaluación (ej: "order_transition")
-            action: Acción específica que se está intentando (opcional)
-
-        Returns:
-            Lista de RuleActions a ejecutar
-        """
         applicable_rules = self.rule_repository.get_rules_by_event(event)
         actions_to_execute = []
 
@@ -77,11 +63,9 @@ class RuleEngine:
             if not rule.enabled:
                 continue
 
-            # Evaluar las condiciones de la regla
             if self._evaluate_conditions(order, rule.conditions, action):
                 actions_to_execute.extend(rule.actions)
 
-        # Ordenar por prioridad
         actions_to_execute.sort(key=lambda x: x.priority)
         return actions_to_execute
 
@@ -91,11 +75,9 @@ class RuleEngine:
         conditions: List[RuleCondition],
         action: Optional[str] = None
     ) -> bool:
-        """Evalúa una lista de condiciones"""
         if not conditions:
             return True
 
-        # Si hay múltiples condiciones en el nivel raíz, se evalúan como AND
         for condition in conditions:
             if not self._evaluate_single_condition(order, condition, action):
                 return False
@@ -107,9 +89,7 @@ class RuleEngine:
         condition: RuleCondition,
         action: Optional[str] = None
     ) -> bool:
-        """Evalúa una condición individual"""
 
-        # Condiciones lógicas compuestas
         if condition.condition_type == RuleConditionType.AND:
             return all(
                 self._evaluate_single_condition(order, sub_cond, action)
@@ -122,10 +102,8 @@ class RuleEngine:
                 for sub_cond in condition.sub_conditions or []
             )
 
-        # Obtener el valor del campo a evaluar
         field_value = self._get_field_value(order, condition.field, action)
 
-        # Evaluar según el tipo de condición
         if condition.condition_type == RuleConditionType.GREATER_THAN:
             return field_value > condition.value
 
@@ -144,20 +122,16 @@ class RuleEngine:
         return False
 
     def _get_field_value(self, order: Any, field: str, action: Optional[str] = None) -> Any:
-        """Obtiene el valor de un campo del objeto order"""
 
-        # Campos especiales
         if field == "action":
             return action
 
         if field == "current_state":
             return order.current_state
 
-        # Campos simples del order
         if hasattr(order, field):
             return getattr(order, field)
 
-        # Campos anidados (ej: "customer.name")
         if "." in field:
             parts = field.split(".")
             value = order
@@ -168,7 +142,6 @@ class RuleEngine:
                     return None
             return value
 
-        # Campos calculados
         if field == "total_products":
             return len(order.order_products) if hasattr(order, 'order_products') else 0
 
@@ -182,17 +155,7 @@ class RuleEngine:
         return None
 
     def execute_actions(self, actions: List[RuleAction], order: Any, context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Ejecuta las acciones retornadas por el motor de reglas
 
-        Args:
-            actions: Lista de acciones a ejecutar
-            order: Objeto order
-            context: Contexto adicional (puede incluir resultados de acciones anteriores)
-
-        Returns:
-            Diccionario con resultados de las acciones ejecutadas
-        """
         results = {
             "blocked": False,
             "block_reason": None,
@@ -222,7 +185,6 @@ class RuleEngine:
                 results["metadata"].update(action.parameters.get("data", {}))
 
             elif action.action_type == RuleActionType.SEND_NOTIFICATION:
-                # Aquí se podría integrar con un servicio de notificaciones
                 results["metadata"]["notification_sent"] = True
                 results["metadata"]["notification_type"] = action.parameters.get("type", "email")
 
