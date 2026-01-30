@@ -17,9 +17,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleTransitionOrder = async (orderId: string, action: string) => {
+  const handleTransitionOrder = async (orderId: string, action: string, cancellationReason?: string) => {
     try {
-      await transitionOrder(orderId, action);
+      await transitionOrder(orderId, action, cancellationReason);
     } catch (error) {
       console.error('Failed to transition order:', error);
     }

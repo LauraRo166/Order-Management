@@ -9,7 +9,7 @@ import '../../styles/features/orders/OrderList.css';
 
 interface OrderListProps {
   orders: Order[];
-  onTransitionOrder: (orderId: string, action: string) => Promise<void>;
+  onTransitionOrder: (orderId: string, action: string, cancellationReason?: string) => Promise<void>;
 }
 
 export const OrderList: React.FC<OrderListProps> = ({
@@ -29,9 +29,9 @@ export const OrderList: React.FC<OrderListProps> = ({
     goToPage
   } = usePagination({ items: orders, initialItemsPerPage: 9 });
 
-  const handleTransition = async (action: string) => {
+  const handleTransition = async (action: string, cancellationReason?: string) => {
     if (selectedOrderId) {
-      await onTransitionOrder(selectedOrderId, action);
+      await onTransitionOrder(selectedOrderId, action, cancellationReason);
     }
   };
 

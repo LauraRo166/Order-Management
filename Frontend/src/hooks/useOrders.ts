@@ -46,8 +46,8 @@ export const useOrders = () => {
     return await productService.createProduct(productData);
   };
 
-  const transitionOrder = async (orderId: string, action: string) => {
-    await orderService.transitionOrder(orderId, action);
+  const transitionOrder = async (orderId: string, action: string, cancellationReason?: string) => {
+    await orderService.transitionOrder(orderId, action, cancellationReason);
     await fetchOrders();
     await fetchLogs();
   };

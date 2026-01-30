@@ -52,10 +52,19 @@ class OrderService {
     await apiClient.delete(`${this.BASE_PATH}/${orderId}`);
   }
 
-  async transitionOrder(orderId: string, action: string): Promise<Order> {
+  async transitionOrder(orderId: string, action: string, cancellationReason?: string): Promise<Order> {
+    const payload: { action: string; cancellation_reason?: string } = { action };
+
+    if (action === 'cancel') {
+      if (!cancellationReason || cancellationReason.trim() === '') {
+        throw new Error('Cancellation reason is required');
+      }
+      payload.cancellation_reason = cancellationReason;
+    }
+
     const response = await apiClient.post<BackendOrder>(
       `${this.BASE_PATH}/${orderId}/transition`,
-      { action }
+      payload
     );
     return this.mapBackendOrderToFrontend(response.data);
   }

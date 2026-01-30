@@ -6,6 +6,7 @@ from typing import Optional
 
 class TransitionRequest(BaseModel):
     action: str
+    cancellation_reason: Optional[str] = None
 
 
 class TransitionLogResponse(BaseModel):

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.database import get_db
 from app.repositories.order_repository import OrderRepository
 from app.repositories.transition_log_repository import TransitionLogRepository
+from app.repositories.ticket_repository import TicketRepository
 from app.services.transition_service import TransitionService
 from app.services.state_machine import OrderStateMachine
 from app.schemas.transition import TransitionRequest, TransitionLogResponse
@@ -34,13 +35,19 @@ async def transition_order(
 
     Esta operación es atómica: tanto el cambio de estado como el log
     se guardan en la misma transacción para garantizar consistencia.
+    Si la acción es 'cancel', se crea un ticket con el motivo de cancelación.
     """
     order_repo = OrderRepository(db)
     log_repo = TransitionLogRepository(db)
-    service = TransitionService(order_repo, log_repo)
+    ticket_repo = TicketRepository(db)
+    service = TransitionService(order_repo, log_repo, ticket_repo)
 
     try:
-        await service.transition_order(order_id, transition_data.action)
+        await service.transition_order(
+            order_id,
+            transition_data.action,
+            transition_data.cancellation_reason
+        )
 
         # Obtener la orden actualizada con todas las relaciones
         updated_order = await order_repo.get_by_id(order_id)

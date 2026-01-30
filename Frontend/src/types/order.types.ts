@@ -30,9 +30,16 @@ export interface TransitionLog {
   action: string;
 }
 
+export interface Ticket {
+  id: string;
+  orderId: string;
+  cancellationReason: string;
+  creationDate: string;
+}
+
 export interface CreateOrderDTO {
   amount: number;
-  current_state: 'pending';  // Siempre inicia en pending
+  current_state: 'pending';
   customer_id: string;
   products: Array<{
     product_id: string;

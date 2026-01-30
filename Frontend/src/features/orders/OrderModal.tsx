@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, Package } from 'lucide-react';
 import { Badge } from '../../components/common/Badge';
 import { OrderStepper } from '../../components/OrderStepper';
@@ -12,7 +12,7 @@ import '../../styles/features/orders/OrderModal.css';
 interface OrderModalProps {
   order: Order;
   onClose: () => void;
-  onTransition: (action: string) => void;
+  onTransition: (action: string, cancellationReason?: string) => void;
   onNavigate?: (direction: 'prev' | 'next') => void;
   hasPrevious?: boolean;
   hasNext?: boolean;
@@ -68,6 +68,37 @@ export const OrderModal: React.FC<OrderModalProps> = ({
   totalOrders
 }) => {
   const actions = getAvailableActions(order);
+  const [showCancellationForm, setShowCancellationForm] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [cancellationError, setCancellationError] = useState('');
+
+  const handleActionClick = (action: string) => {
+    if (action === 'cancel') {
+      setShowCancellationForm(true);
+      setCancellationReason('');
+      setCancellationError('');
+    } else {
+      onTransition(action);
+    }
+  };
+
+  const handleCancelSubmit = () => {
+    if (!cancellationReason || cancellationReason.trim() === '') {
+      setCancellationError('The cancellation reason is required');
+      return;
+    }
+
+    onTransition('cancel', cancellationReason);
+    setShowCancellationForm(false);
+    setCancellationReason('');
+    setCancellationError('');
+  };
+
+  const handleCancelFormCancel = () => {
+    setShowCancellationForm(false);
+    setCancellationReason('');
+    setCancellationError('');
+  };
 
   return (
     <div className="order-modal-overlay">
@@ -133,14 +164,53 @@ export const OrderModal: React.FC<OrderModalProps> = ({
                 {actions.map((action) => (
                   <button
                     key={action.action}
-                    onClick={() => onTransition(action.action)}
+                    onClick={() => handleActionClick(action.action)}
                     className={`order-action-btn action-btn-${action.variant}`}
+                    disabled={showCancellationForm && action.action !== 'cancel'}
                   >
                     <Package className="action-btn-icon" />
                     {action.label}
                   </button>
                 ))}
               </div>
+
+              {showCancellationForm && (
+                <div className="cancellation-form">
+                  <div className="cancellation-form-header">
+                    <h3 className="cancellation-form-title">Reason for cancellation</h3>
+                  </div>
+                  <textarea
+                    className="cancellation-textarea"
+                    placeholder="Please provide a detailed reason for cancelling this order..."
+                    value={cancellationReason}
+                    onChange={(e) => {
+                      setCancellationReason(e.target.value);
+                      if (cancellationError) setCancellationError('');
+                    }}
+                    rows={4}
+                    autoFocus
+                  />
+                  {cancellationError && (
+                    <div className="cancellation-error">
+                      {cancellationError}
+                    </div>
+                  )}
+                  <div className="cancellation-form-actions">
+                    <button
+                      onClick={handleCancelFormCancel}
+                      className="cancellation-btn cancellation-btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleCancelSubmit}
+                      className="cancellation-btn cancellation-btn-danger"
+                    >
+                      Confirm cancellation
+                    </button>
+                  </div>
+                </div>
+              )}
             </ModalSection>
           )}
         </div>

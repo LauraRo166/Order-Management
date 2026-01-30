@@ -173,3 +173,58 @@ class TestTransitionEndpoints:
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
+    @pytest.mark.asyncio
+    async def test_cancel_order_creates_ticket(self, client: AsyncClient, sample_customer_data, sample_product_data):
+        """Test that cancelling an order creates a ticket."""
+        # Setup: create customer, product, and order
+        customer_resp = await client.post("/customers/", json=sample_customer_data)
+        customer_id = customer_resp.json()["id"]
+
+        product_resp = await client.post("/products/", json=sample_product_data)
+        product = product_resp.json()
+
+        order_data = {
+            "amount": 500.0,
+            "current_state": "pending",
+            "customer_id": customer_id,
+            "products": [{
+                "product_id": product["id"],
+                "name": product["name"],
+                "quantity": 5,
+                "unit_price": 100.0
+            }]
+        }
+
+        order_resp = await client.post("/orders", json=order_data)
+        order_id = order_resp.json()["id"]
+
+        # Cancel the order with a reason
+        cancellation_reason = "Customer requested cancellation"
+        response = await client.post(
+            f"/orders/{order_id}/transition",
+            json={"action": "cancel", "cancellation_reason": cancellation_reason}
+        )
+
+        assert response.status_code == 200
+        assert response.json()["current_state"] == "cancelled"
+
+        # Verify ticket was created
+        ticket_response = await client.get(f"/tickets/order/{order_id}")
+        assert ticket_response.status_code == 200
+        ticket = ticket_response.json()
+        assert ticket["order_id"] == order_id
+        assert ticket["cancellation_reason"] == cancellation_reason
+        assert "id" in ticket
+        assert "creation_date" in ticket
+
+
+class TestTicketEndpoints:
+    """Test ticket operations."""
+
+    @pytest.mark.asyncio
+    async def test_list_tickets(self, client: AsyncClient):
+        """Test listing all tickets."""
+        response = await client.get("/tickets/")
+        assert response.status_code == 200
+        assert isinstance(response.json(), list)
+

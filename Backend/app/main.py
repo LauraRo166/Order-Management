@@ -5,6 +5,7 @@ from app.controllers.order_controller import router as order_router
 from app.controllers.customer_controller import router as customer_router
 from app.controllers.product_controller import router as product_router
 from app.controllers.transition_controller import router as transition_router
+from app.controllers.ticket_controller import router as ticket_router
 from app.config.database import init_db, settings
 import os
 
@@ -36,6 +37,7 @@ app.include_router(transition_router)
 app.include_router(order_router)
 app.include_router(customer_router)
 app.include_router(product_router)
+app.include_router(ticket_router)
 
 
 @app.get("/")
