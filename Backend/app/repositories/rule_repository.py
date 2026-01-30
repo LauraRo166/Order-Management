@@ -9,15 +9,13 @@ from app.services.rule_engine import (
 
 
 class RuleRepository:
-    """Repositorio de reglas de negocio (mockeado)"""
 
     def __init__(self):
         self._rules = self._initialize_rules()
 
     def _initialize_rules(self) -> List[Rule]:
-        """Inicializa las reglas de negocio mockeadas"""
         return [
-            # Regla 1: Threshold Review - Órdenes > $1000 requieren revisión
+            # Rule 1: Threshold Review - orders > $1000 require review
             Rule(
                 id="rule_001",
                 name="High Value Order Review",
@@ -63,51 +61,7 @@ class RuleRepository:
                 priority=1
             ),
 
-            # Regla 2: Tax Calculation basada en monto total
-            Rule(
-                id="rule_002",
-                name="Standard Tax Calculation",
-                description="Apply 10% tax for orders between $100 and $1000",
-                event="order_transition",
-                conditions=[
-                    RuleCondition(
-                        condition_type=RuleConditionType.AND,
-                        field="amount",
-                        value=None,
-                        sub_conditions=[
-                            RuleCondition(
-                                condition_type=RuleConditionType.GREATER_THAN,
-                                field="amount",
-                                value=100.0
-                            ),
-                            RuleCondition(
-                                condition_type=RuleConditionType.LESS_THAN,
-                                field="amount",
-                                value=1000.0
-                            )
-                        ]
-                    ),
-                    RuleCondition(
-                        condition_type=RuleConditionType.IN_LIST,
-                        field="action",
-                        value=["start_preparation", "approve"]
-                    )
-                ],
-                actions=[
-                    RuleAction(
-                        action_type=RuleActionType.CALCULATE_TAX,
-                        parameters={
-                            "rate": 0.10,
-                            "description": "Standard tax rate"
-                        },
-                        priority=3
-                    )
-                ],
-                enabled=True,
-                priority=2
-            ),
-
-            # Regla 3: High Tax for High Value Orders
+            # Rule 2: High tax for high value orders
             Rule(
                 id="rule_003",
                 name="Premium Tax Calculation",
@@ -139,49 +93,7 @@ class RuleRepository:
                 priority=2
             ),
 
-            # Regla 4: Tax basada en productos de alto valor
-            Rule(
-                id="rule_004",
-                name="Luxury Product Tax",
-                description="Apply additional 5% tax if order contains high-value products",
-                event="order_transition",
-                conditions=[
-                    RuleCondition(
-                        condition_type=RuleConditionType.EQUALS,
-                        field="has_high_value_product",
-                        value=True
-                    ),
-                    RuleCondition(
-                        condition_type=RuleConditionType.IN_LIST,
-                        field="action",
-                        value=["start_preparation", "approve"]
-                    )
-                ],
-                actions=[
-                    RuleAction(
-                        action_type=RuleActionType.CALCULATE_TAX,
-                        parameters={
-                            "rate": 0.05,
-                            "description": "Luxury product additional tax"
-                        },
-                        priority=4
-                    ),
-                    RuleAction(
-                        action_type=RuleActionType.ADD_METADATA,
-                        parameters={
-                            "data": {
-                                "luxury_items": True,
-                                "additional_tax_applied": True
-                            }
-                        },
-                        priority=5
-                    )
-                ],
-                enabled=True,
-                priority=3
-            ),
-
-            # Regla 5: Notification for cancelled orders
+            # Rule 3: Notification for cancelled orders
             Rule(
                 id="rule_005",
                 name="Cancellation Notification",
@@ -217,40 +129,6 @@ class RuleRepository:
                 ],
                 enabled=True,
                 priority=1
-            ),
-
-            # Regla 6: Large order review (more than 10 products)
-            Rule(
-                id="rule_006",
-                name="Large Order Review",
-                description="Orders with more than 10 products require additional review",
-                event="order_transition",
-                conditions=[
-                    RuleCondition(
-                        condition_type=RuleConditionType.GREATER_THAN,
-                        field="total_products",
-                        value=10
-                    ),
-                    RuleCondition(
-                        condition_type=RuleConditionType.EQUALS,
-                        field="action",
-                        value="start_preparation"
-                    )
-                ],
-                actions=[
-                    RuleAction(
-                        action_type=RuleActionType.ADD_METADATA,
-                        parameters={
-                            "data": {
-                                "large_order": True,
-                                "requires_additional_review": True
-                            }
-                        },
-                        priority=2
-                    )
-                ],
-                enabled=True,
-                priority=2
             )
         ]
 
